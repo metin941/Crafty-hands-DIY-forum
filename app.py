@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash,jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash,jsonify,Response
 from flask_sqlalchemy import SQLAlchemy
 from flask import session
 from sqlalchemy.exc import IntegrityError
@@ -28,6 +28,12 @@ class Thread(db.Model):
     content = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship('User', backref=db.backref('threads', lazy=True))
+
+class Response(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text, nullable=False)
+    thread_id = db.Column(db.Integer, db.ForeignKey('thread.id'), nullable=False)
+    thread = db.relationship('Thread', backref=db.backref('responses', lazy=True))
 
 @app.route('/')
 def index():
@@ -68,7 +74,8 @@ def create_thread():
             thread = Thread(title=title, content=content, user_id=user_id)
             db.session.add(thread)
             db.session.commit()
-            return redirect(url_for('index'))
+            # Redirect to the route for viewing the newly created thread
+            return redirect(url_for('view_thread', thread_id=thread.id))
         else:
             return redirect(url_for('login'))
     return render_template('create_thread.html')
@@ -128,18 +135,37 @@ def update_thread(thread_id):
     else:
         return redirect(url_for('login'))
 
-@app.route('/delete_thread/<int:thread_id>', methods=['GET','POST'])
+@app.route('/delete_thread/<int:thread_id>', methods=['GET', 'POST'])
 def delete_thread(thread_id):
     if 'user_id' in session:
-        user_id = session['user_id']
-        thread = Thread.query.filter_by(id=thread_id, user_id=user_id).first()
+        thread = Thread.query.get(thread_id)
         if thread:
-            # Delete the thread from the database
+            # Delete associated responses first
+            Response.query.filter_by(thread_id=thread_id).delete()
+            
+            # Now delete the thread
             db.session.delete(thread)
             db.session.commit()
-            return redirect(url_for('index'))
+            return redirect(url_for('index'))  # Redirect to the index page after deleting the thread
         else:
-            return "You don't have permission to delete this thread or the thread doesn't exist."
+            return "Thread not found", 404
+    else:
+        return redirect(url_for('login'))
+
+@app.route('/add_response/<int:thread_id>', methods=['POST'])
+def add_response(thread_id):
+    if 'user_id' in session:
+        response_content = request.form['response_content']
+
+        thread = Thread.query.get(thread_id)
+
+        if thread:
+            response = Response(content=response_content)
+            thread.responses.append(response)
+            db.session.commit()
+            return redirect(url_for('view_thread', thread_id=thread_id))
+        else:
+            return "Thread not found", 404
     else:
         return redirect(url_for('login'))
 

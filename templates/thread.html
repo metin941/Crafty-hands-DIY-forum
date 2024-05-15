@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>{{ thread.title }}</title>
+    <script src="https://cdn.ckeditor.com/ckeditor5/36.0.1/classic/ckeditor.js"></script>
     <style>
         .container {
             margin: 20px auto;
@@ -29,6 +30,77 @@
     <div class="container">
         <h1>{{ thread.title }}</h1>
         <div>{{ thread.content | safe }}</div> <!-- Render main content -->
+
+        <hr> <!-- Horizontal line to separate thread content and responses -->
+
+        <h2>Responses</h2>
+        {% for response in thread.responses %}
+            <div>{{ response.content | safe }}</div>
+            <hr> <!-- Horizontal line to separate responses -->
+        {% endfor %}
+
+        <!-- Form for adding a new response -->
+        <form id="add_response_form" method="post" action="{{ url_for('add_response', thread_id=thread.id) }}">
+            <label for="response_content">Your Response:</label><br>
+            <textarea name="response_content" id="response_content" required></textarea><br>
+            <!-- Hidden input field to store response content -->
+            <input type="hidden" id="response_content_hidden" name="response_content_hidden">
+            <input type="button" value="Add Response" onclick="submitForm()">
+        </form>
     </div>
+
+    <!-- CKEditor initialization script -->
+    <script>
+        ClassicEditor
+            .create(document.querySelector('#response_content'), {
+                // CKEditor configuration options
+            })
+            .then(editor => {
+            console.log(editor);
+
+            editor.plugins.get('FileRepository').createUploadAdapter = function(loader) {
+                return {
+                    upload: () => {
+                        return loader.file
+                            .then(file => new Promise((resolve, reject) => {
+                                const formData = new FormData();
+                                formData.append('file', file);
+
+                                // Send the image file to the server for uploading
+                                fetch('/upload_image', {
+                                    method: 'POST',
+                                    body: formData
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    resolve({ default: data.url });
+                                })
+                                .catch(error => {
+                                    reject(error);
+                                });
+                            }));
+                    },
+                    abort: () => {
+                        // Cancel the upload process if needed
+                    }
+                };
+            };
+        })
+        .catch(error => {
+            console.error(error);
+        });
+    
+        // Function to handle form submission
+        function submitForm() {
+            // Get the response content from CKEditor
+            var responseContent = document.querySelector('#response_content').value;
+    
+            // Set the response content in a hidden input field
+            document.querySelector('#response_content_hidden').value = responseContent;
+    
+            // Submit the form
+            document.querySelector('#add_response_form').submit();
+        }
+    </script>
 </body>
 </html>
