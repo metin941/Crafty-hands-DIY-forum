@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Crafty hands DIY forum</title>
+    <style>
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f2f2f2;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 70%;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.1);
+}
+
+.header {
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.thread-list {
+    padding: 0;
+    margin: 0;
+    list-style-type: none;
+}
+
+.thread-item {
+    padding: 20px;
+    margin-bottom: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0px 2px 4px rgba(0,0,0,0.1);
+}
+
+.thread-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.thread-actions {
+    margin-top: 10px;
+}
+
+.thread-actions a {
+    color: #007bff;
+    text-decoration: none;
+    margin-right: 10px;
+}
+
+.thread-actions a:hover {
+    color: #0056b3;
+}
+
+.add-thread-btn {
+    margin: 20px auto;
+    padding: 10px 20px;
+}
+
+.login-btn{
+    margin: 20px auto;
+    padding: 10px 20px;
+}
+
+.logout-btn{
+    margin: 20px auto;
+    padding: 10px 20px;
+}
+
+.confirm-delete {
+    color: #ff0000;
+    font-weight: bold;
+}
+.user-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* User actions */
+.user-actions {
+    display: flex;
+    align-items: center;
+}
+
+    </style>
+</head>
+<div class="container">
+    <h1 class="header">Crafty hands DIY forum</h1>
+    <div class="user-banner">
+        <div class="username-panel">
+            {% if username %}
+            <p>Logged in as: <span>{{ username }}</span></p>
+            {% endif %}
+        </div>
+        <div class="user-actions">
+            {% if username %}
+            <a href="{{ url_for('create_thread') }}" class="add-thread-btn">Add Thread</a>
+            <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+            {% else %}
+            <a href="{{ url_for('login') }}" class="login-btn">Login</a>
+            {% endif %}
+        </div>
+    </div>
+    <ul class="thread-list">
+        {% for thread in threads %}
+        <li class="thread-item">
+            <div class="thread-title"><a href="{{ url_for('view_thread', thread_id=thread.id) }}">{{ thread.title }}</a></div>
+            <div class="thread-actions">
+                {% if username and thread.user_id == session['user_id'] %}
+                <a href="{{ url_for('edit_thread', thread_id=thread.id) }}">Edit</a>
+                <a href="{{ url_for('delete_thread', thread_id=thread.id) }}" onclick="return confirmDelete()">Delete</a>
+                {% endif %}
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+    <script>
+        function confirmDelete() {
+            return confirm("Are you sure you want to delete this thread?");
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Thread</title>
+    <script src="https://cdn.ckeditor.com/ckeditor5/36.0.1/classic/ckeditor.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+        }
+        form {
+            max-width: 70%; /* Adjust as needed */
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0px 2px 4px rgba(0,0,0,0.1);
+        }
+        label {
+            font-weight: bold;
+        }
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box; /* Ensure padding and border are included in width */
+        }
+        input[type="submit"] {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<h1>Create Thread</h1>
+<form method="post" enctype="multipart/form-data" id="threadForm">
+    <label>Title:</label><br>
+    <input type="text" name="title" required><br>
+    <label>Content:</label><br>
+    <!-- Ensure the textarea has the name attribute set to "content" -->
+    <textarea name="content" id="editor"></textarea><br>
+    <input type="submit" value="Create">
+</form>
+
+<script>
+    ClassicEditor
+        .create(document.querySelector('#editor'), {
+        })
+        .then(editor => {
+            console.log(editor);
+
+            editor.plugins.get('FileRepository').createUploadAdapter = function(loader) {
+                return {
+                    upload: () => {
+                        return loader.file
+                            .then(file => new Promise((resolve, reject) => {
+                                const formData = new FormData();
+                                formData.append('file', file);
+
+                                // Send the image file to the server for uploading
+                                fetch('/upload_image', {
+                                    method: 'POST',
+                                    body: formData
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    resolve({ default: data.url });
+                                })
+                                .catch(error => {
+                                    reject(error);
+                                });
+                            }));
+                    },
+                    abort: () => {
+                        // Cancel the upload process if needed
+                    }
+                };
+            };
+        })
+        .catch(error => {
+            console.error(error);
+        });
+</script>
+
+
+</body>
+</html>
