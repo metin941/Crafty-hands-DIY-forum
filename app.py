@@ -37,13 +37,22 @@ class Response(db.Model):
 
 @app.route('/')
 def index():
-    threads = Thread.query.all()
     username = None
+    threads = None
+    query = request.args.get('query')
+    if query:
+        # If a search query is provided, display search results
+        threads = Thread.query.filter(Thread.title.ilike(f'%{query}%')).all()
+    else:
+        # If no search query is provided, display all threads
+        threads = Thread.query.all()
+
     if 'user_id' in session:
         user_id = session['user_id']
         user = User.query.get(user_id)
         if user:
             username = user.username
+
     return render_template('index.html', threads=threads, username=username)
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -217,6 +226,17 @@ def upload_image():
         return jsonify({'url': uploaded_image_url}), 200
     else:
         return jsonify({'error': 'Invalid file type'}), 400
+
+@app.route('/search_threads', methods=['GET','POST'])
+def search_threads():
+    query = request.args.get('query')
+    if query:
+        # Perform a search for threads based on the query
+        threads = Thread.query.filter(Thread.title.ilike(f'%{query}%')).all()
+        return render_template('search_results.html', threads=threads, query=query)
+    else:
+        # If no query is provided, redirect back to the index page
+        return redirect(url_for('index'))
 
 if __name__ == '__main__':
     app.run(debug=True)

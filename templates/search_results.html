@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results</title>
+    <style>
+        .container {
+            margin: 20px auto;
+            max-width: 70%;
+            padding: 20px;
+            background-color: #f2f2f2;
+            border-radius: 10px;
+            box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.1);
+        }
+        .container img{
+            max-width: 100%;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            text-align: left;
+            margin-bottom: 20px;
+            margin-top: 5%;
+        }
+        header {
+            background-color: #333;
+            color: #fff;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            height: 60px;
+            z-index: 1000; /* Set a higher z-index to ensure the header appears on top */
+            transition: top 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+        header h1 {
+            margin: 0; /* Remove default margin */
+        }
+        .user-actions {
+            display: flex;
+            align-items: center;
+        }
+
+        .index-btn,
+        .logout-btn {
+            margin-left: 10px; /* Add some space between buttons */
+            padding: 15% 40px;
+            text-decoration: none;
+            color: #fff;
+            border-radius: 5px;
+        }
+
+        .index-btn:hover,
+        .logout-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1); /* Add hover effect */
+        }
+        footer {
+            background-color: #333;
+            color: #fff;
+            padding: 0px;
+            text-align: center;
+            position: fixed;
+            bottom: -60px; /* Initially hide footer */
+            width: 100%;
+            transition: bottom 0.3s; /* Smooth transition */
+        }
+        body::before,
+        body::after {
+            content: '';
+            display: block;
+        }
+        body.scroll-bottom footer {
+            bottom: 0;
+        }
+        body.scroll-top header {
+            top: 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>DIYers United</h1>
+        <div class="user-actions">
+            <a href="{{ url_for('index') }}" class="index-btn">index</a>
+            <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+        </div>
+    </header>
+    <div class="container">
+    <h1>Search Results for "{{ query }}"</h1>
+    <ul>
+        {% for thread in threads %}
+            <li><a href="{{ url_for('view_thread', thread_id=thread.id) }}">{{ thread.title }}</a></li>
+        {% endfor %}
+    </ul>
+    </div>
+    <footer>
+        <p>Build: &copy; DIYers United forum All rights reserved <span id="copyright-year"></span></p>
+        <!-- Add any footer content you want -->
+    </footer>
+</body>
+    <script>
+        window.addEventListener('scroll', function() {
+        var body = document.body;
+        var scrollPosition = window.pageYOffset;
+        if (scrollPosition === 0) {
+            body.classList.add('scroll-top');
+        } else {
+            body.classList.remove('scroll-top');
+        }
+        if (scrollPosition >= body.offsetHeight - window.innerHeight) {
+            body.classList.add('scroll-bottom');
+        } else {
+            body.classList.remove('scroll-bottom');
+        }
+    });
+    </script>
+</html>

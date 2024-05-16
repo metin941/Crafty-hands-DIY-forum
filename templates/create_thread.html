@@ -10,17 +10,19 @@
             margin: 0;
             padding: 0;
         }
+
         h1 {
             text-align: center;
-            margin-top: 20px;
+            margin-top: 80px; /* Adjusted to accommodate the header */
         }
         form {
             max-width: 70%; /* Adjust as needed */
-            margin: 0 auto;
+            margin: 60px auto 0; /* Added 60px top margin to create space for the header */
             padding: 20px;
             background-color: #ffffff;
             border-radius: 8px;
             box-shadow: 0px 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 70px; /* Added margin bottom to accommodate the footer */
         }
         label {
             font-weight: bold;
@@ -47,17 +49,86 @@
         input[type="submit"]:hover {
             background-color: #0056b3;
         }
+        header {
+            background-color: #333;
+            color: #fff;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            height: 60px;
+            z-index: 1000; /* Set a higher z-index to ensure the header appears on top */
+            transition: top 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+        header h1 {
+            margin: 0; /* Remove default margin */
+        }
+        .user-actions {
+            display: flex;
+            align-items: center;
+        }
+
+        .index-btn,
+        .logout-btn {
+            margin-left: 10px; /* Add some space between buttons */
+            padding: 15% 40px;
+            text-decoration: none;
+            color: #fff;
+            border-radius: 5px;
+        }
+
+        .index-btn:hover,
+        .logout-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1); /* Add hover effect */
+        }
+        footer {
+            background-color: #333;
+            color: #fff;
+            padding: 0px;
+            text-align: center;
+            position: fixed;
+            bottom: -60px; /* Initially hide footer */
+            width: 100%;
+            transition: bottom 0.3s; /* Smooth transition */
+        }
+        body::before,
+        body::after {
+            content: '';
+            display: block;
+        }
+        body.scroll-bottom footer {
+            bottom: 0;
+        }
+        body.scroll-top header {
+            top: 0;
+        }
     </style>
 </head>
-<h1>Create Thread</h1>
-<form method="post" enctype="multipart/form-data" id="threadForm">
-    <label>Title:</label><br>
-    <input type="text" name="title" required><br>
-    <label>Content:</label><br>
-    <!-- Ensure the textarea has the name attribute set to "content" -->
-    <textarea name="content" id="editor"></textarea><br>
-    <input type="submit" value="Create">
-</form>
+<body>
+    <header>
+        <h1>DIYers United</h1>
+        <div class="user-actions">
+            <a href="{{ url_for('index') }}" class="index-btn">index</a>
+            <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+        </div>
+    </header>
+    <h1>Create Thread</h1>
+    <form method="post" enctype="multipart/form-data" id="threadForm">
+        <label>Title:</label><br>
+        <input type="text" name="title" required><br>
+        <label>Content:</label><br>
+        <!-- Ensure the textarea has the name attribute set to "content" -->
+        <textarea name="content" id="editor"></textarea><br>
+        <input type="submit" value="Create">
+    </form>
+
+<footer>
+    <p>Build: &copy; DIYers United forum All rights reserved <span id="copyright-year"></span></p>
+    <!-- Add any footer content you want -->
+</footer>
 
 <script>
     ClassicEditor
@@ -97,6 +168,20 @@
         .catch(error => {
             console.error(error);
         });
+        window.addEventListener('scroll', function() {
+        var body = document.body;
+        var scrollPosition = window.pageYOffset;
+        if (scrollPosition === 0) {
+            body.classList.add('scroll-top');
+        } else {
+            body.classList.remove('scroll-top');
+        }
+        if (scrollPosition >= body.offsetHeight - window.innerHeight) {
+            body.classList.add('scroll-bottom');
+        } else {
+            body.classList.remove('scroll-bottom');
+        }
+    });
 </script>
 
 

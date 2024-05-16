@@ -24,9 +24,72 @@
             text-align: left;
             margin-bottom: 20px;
         }
+        header {
+            background-color: #333;
+            color: #fff;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            height: 60px;
+            z-index: 1000; /* Set a higher z-index to ensure the header appears on top */
+            transition: top 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+        header h1 {
+            margin: 0; /* Remove default margin */
+        }
+        .user-actions {
+            display: flex;
+            align-items: center;
+        }
+
+        .index-btn,
+        .logout-btn {
+            margin-left: 10px; /* Add some space between buttons */
+            padding: 15% 40px;
+            text-decoration: none;
+            color: #fff;
+            border-radius: 5px;
+        }
+
+        .index-btn:hover,
+        .logout-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1); /* Add hover effect */
+        }
+        footer {
+            background-color: #333;
+            color: #fff;
+            padding: 0px;
+            text-align: center;
+            position: fixed;
+            bottom: -60px; /* Initially hide footer */
+            width: 100%;
+            transition: bottom 0.3s; /* Smooth transition */
+        }
+        body::before,
+        body::after {
+            content: '';
+            display: block;
+        }
+        body.scroll-bottom footer {
+            bottom: 0;
+        }
+        body.scroll-top header {
+            top: 0;
+        }
     </style>
 </head>
 <body>
+    <header>
+        <h1>DIYers United</h1>
+        <div class="user-actions">
+            <a href="{{ url_for('index') }}" class="index-btn">index</a>
+            <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+        </div>
+    </header>
     <div class="container">
         <h1>{{ thread.title }}</h1>
         <div>{{ thread.content | safe }}</div> <!-- Render main content -->
@@ -48,6 +111,10 @@
             <input type="button" value="Add Response" onclick="submitForm()">
         </form>
     </div>
+    <footer>
+        <p>Build: &copy; DIYers United forum All rights reserved <span id="copyright-year"></span></p>
+        <!-- Add any footer content you want -->
+    </footer>
 
     <!-- CKEditor initialization script -->
     <script>
@@ -101,6 +168,20 @@
             // Submit the form
             document.querySelector('#add_response_form').submit();
         }
+        window.addEventListener('scroll', function() {
+        var body = document.body;
+        var scrollPosition = window.pageYOffset;
+        if (scrollPosition === 0) {
+            body.classList.add('scroll-top');
+        } else {
+            body.classList.remove('scroll-top');
+        }
+        if (scrollPosition >= body.offsetHeight - window.innerHeight) {
+            body.classList.add('scroll-bottom');
+        } else {
+            body.classList.remove('scroll-bottom');
+        }
+    });
     </script>
 </body>
 </html>
