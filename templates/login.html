@@ -14,7 +14,7 @@
             height: 100vh;
         }
         .container {
-            text-align: center;
+            text-align: left;
         }
         form {
             background-color: #ffffff;
@@ -23,9 +23,9 @@
             box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
             width: 300px;
         }
-        h1 {
+        h2 {
             margin-bottom: 20px;
-            color: #007bff;
+            color: #000000;
         }
         label {
             font-weight: bold;
@@ -44,12 +44,12 @@
             padding: 10px;
             border: none;
             border-radius: 5px;
-            background-color: #007bff;
+            background-color: #575757;
             color: #ffffff;
             cursor: pointer;
         }
         input[type="submit"]:hover {
-            background-color: #0056b3;
+            background-color: #6e6e6e;
         }
         p.error {
             color: #ff0000;
@@ -59,17 +59,49 @@
             margin-top: 20px;
         }
         p.signup a {
-            color: #007bff;
+            color: #029aff;
             text-decoration: none;
         }
         p.signup a:hover {
             text-decoration: underline;
         }
+        .header-link {
+            text-decoration: none; /* Remove underline */
+            color: inherit; /* Inherit text color */
+            padding-left: 20px;
+        }
+        header {
+            background-color: #333;
+            color: #fff;
+            position: fixed;
+            top: 0; /* Initially show header */
+            width: 100%;
+            height: 60px;
+            transition: top 0.3s; /* Smooth transition */
+            display: flex; /* Make header a flex container */
+            justify-content: space-between; /* Align items at the start and end */
+            align-items: center; /* Align items vertically */
+            padding: 0 20px; /* Add padding to the header */
+        }
+        footer {
+            background-color: #333;
+            color: #fff;
+            padding: 0px;
+            text-align: center;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
     </style>
 </head>
 <body>
+    <header>
+        <a href="{{ url_for('index') }}" class="header-link">
+            <h1>DIYers United</h1>
+        </a>
+    </header>
     <div class="container">
-        <h1>Login</h1>
+        <h2>Login</h2>
         <form method="post">
             {% if error %}
             <p class="error">{{ error }}</p>
@@ -82,5 +114,9 @@
         </form>
         <p class="signup">Don't have an account? <a href="{{ url_for('register') }}">Register</a></p>
     </div>
+    <footer>
+        <p>Build: &copy; DIYers United forum All rights reserved <span id="copyright-year"></span></p>
+        <!-- Add any footer content you want -->
+    </footer>
 </body>
 </html>

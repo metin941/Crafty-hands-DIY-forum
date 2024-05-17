@@ -9,9 +9,15 @@
             background-color: #f2f2f2;
             margin: 0;
             padding: 20px;
+            padding-top: 50px;
+            padding-bottom: 50px;
         }
         h1 {
             text-align: center;
+        }
+        .header-link {
+            text-decoration: none; /* Remove underline */
+            color: inherit; /* Inherit text color */
         }
         form {
             background-color: #ffffff;
@@ -45,9 +51,70 @@
         input[type="submit"]:hover {
             background-color: #0056b3;
         }
+        header {
+            background-color: #333;
+            color: #fff;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            z-index: 1000; /* Set a higher z-index to ensure the header appears on top */
+            transition: top 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+        .user-actions {
+            display: flex;
+            align-items: center;
+        }
+
+        .index-btn,
+        .logout-btn {
+            margin-left: 10px; /* Add some space between buttons */
+            padding: 15% 40px;
+            text-decoration: none;
+            color: #fff;
+            border-radius: 5px;
+        }
+
+        .index-btn:hover,
+        .logout-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1); /* Add hover effect */
+        }
+        footer {
+            background-color: #333;
+            color: #fff;
+            padding: 0; /* Ensure some padding for content visibility */
+            text-align: center;
+            position: fixed;
+            bottom: -60px; /* Initially hide footer */
+            width: 100%;
+            transition: bottom 0.3s; /* Smooth transition */
+            left: 0;
+        }
+        body::before,
+        body::after {
+            content: '';
+            display: block;
+        }
+        body.scrolling-down footer {
+            bottom: 0; /* Move footer into view when scrolling down */
+        }
     </style>
 </head>
 <body>
+    <header>
+        <a href="{{ url_for('index') }}" class="header-link">
+            <h1>DIYers United</h1>
+        </a>
+        <div class="user-actions">
+            <a href="{{ url_for('index') }}" class="index-btn">index</a>
+            <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+        </div>
+    </header>
     <h1>Edit Thread</h1>
     <form method="post" action="{{ url_for('update_thread', thread_id=thread.id) }}">
         <label>Title:</label><br>
@@ -56,44 +123,70 @@
         <textarea name="content" id="editor">{{ thread.content }}</textarea><br>
         <input type="submit" value="Save Changes">
     </form>
+    <footer>
+        <p>Build: &copy; DIYers United forum All rights reserved <span id="copyright-year"></span></p>
+        <!-- Add any footer content you want -->
+    </footer>
     <script>
-        ClassicEditor
-            .create(document.querySelector('#editor'), {
-            })
-            .then(editor => {
-                console.log(editor);
-    
-                editor.plugins.get('FileRepository').createUploadAdapter = function(loader) {
-                    return {
-                        upload: () => {
-                            return loader.file
-                                .then(file => new Promise((resolve, reject) => {
-                                    const formData = new FormData();
-                                    formData.append('file', file);
-    
-                                    // Send the image file to the server for uploading
-                                    fetch('/upload_image', {
-                                        method: 'POST',
-                                        body: formData
-                                    })
-                                    .then(response => response.json())
-                                    .then(data => {
-                                        resolve({ default: data.url });
-                                    })
-                                    .catch(error => {
-                                        reject(error);
+ClassicEditor
+.create(document.querySelector('#editor'), {toolbar: {items: ['heading', '|','bold', 'italic', 'link', '|','bulletedList', 'numberedList', 'blockQuote','insertTable', '|','undo', 'redo','|','mediaEmbed']},placeholder: 'For adding images please insert links or copy paste the image from internet.'})
+    .then(editor => {
+        console.log(editor);
+        editor.plugins.get('FileRepository').createUploadAdapter = function(loader) {
+            return {
+                upload: () => {
+                    return loader.file
+                        .then(file => new Promise((resolve, reject) => {
+                            const formData = new FormData();
+                            formData.append('file', file);
+
+                            fetch('/upload_image', {
+                                method: 'POST',
+                                body: formData
+                            })
+                            .then(response => {
+                                if (!response.ok) {
+                                    return response.text().then(text => {
+                                        throw new Error(`Upload error: ${text}`);
                                     });
-                                }));
-                        },
-                        abort: () => {
-                            // Cancel the upload process if needed
-                        }
-                    };
-                };
-            })
-            .catch(error => {
-                console.error(error);
-            });
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                console.log('Uploaded image URL:', data.url);
+                                resolve({ default: data.url });
+                            })
+                            .catch(error => {
+                                console.error('Upload error:', error);
+                                reject(error);
+                            });
+                        }));
+                },
+                abort: () => {
+                    // Cancel the upload process if needed
+                }
+            };
+        };
+    })
+    .catch(error => {
+        console.error('Editor error:', error);
+    });
+    let lastScrollPosition = 0;
+
+window.addEventListener('scroll', function() {
+    const body = document.body;
+    const currentScrollPosition = window.pageYOffset;
+
+    if (currentScrollPosition > lastScrollPosition) {
+        // Scrolling down
+        body.classList.add('scrolling-down');
+    } else {
+        // Scrolling up
+        body.classList.remove('scrolling-down');
+    }
+
+    lastScrollPosition = currentScrollPosition;
+});
     </script>
 </body>
 </html>

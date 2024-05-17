@@ -119,12 +119,9 @@
     <!-- CKEditor initialization script -->
     <script>
         ClassicEditor
-            .create(document.querySelector('#response_content'), {
-                // CKEditor configuration options
-            })
+            .create(document.querySelector('#response_content'),{toolbar: {items: ['heading', '|','bold', 'italic', 'link', '|','bulletedList', 'numberedList', 'blockQuote','insertTable', '|','undo', 'redo','|','mediaEmbed']},placeholder: 'For adding images please insert links or copy paste the image from internet.'})
             .then(editor => {
             console.log(editor);
-
             editor.plugins.get('FileRepository').createUploadAdapter = function(loader) {
                 return {
                     upload: () => {

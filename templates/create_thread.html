@@ -15,6 +15,10 @@
             text-align: center;
             margin-top: 80px; /* Adjusted to accommodate the header */
         }
+        .header-link {
+            text-decoration: none; /* Remove underline */
+            color: inherit; /* Inherit text color */
+        }
         form {
             max-width: 70%; /* Adjust as needed */
             margin: 60px auto 0; /* Added 60px top margin to create space for the header */
@@ -40,14 +44,14 @@
             display: block;
             width: 100%;
             padding: 10px;
-            background-color: #007bff;
+            background-color: #575757;
             color: #ffffff;
             border: none;
             border-radius: 5px;
             cursor: pointer;
         }
         input[type="submit"]:hover {
-            background-color: #0056b3;
+            background-color: #6e6e6e;
         }
         header {
             background-color: #333;
@@ -109,7 +113,9 @@
 </head>
 <body>
     <header>
-        <h1>DIYers United</h1>
+        <a href="{{ url_for('index') }}" class="header-link">
+            <h1>DIYers United</h1>
+        </a>
         <div class="user-actions">
             <a href="{{ url_for('index') }}" class="index-btn">index</a>
             <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
@@ -132,10 +138,9 @@
 
 <script>
 ClassicEditor
-    .create(document.querySelector('#editor'), {})
+.create(document.querySelector('#editor'), {toolbar: {items: ['heading', '|','bold', 'italic', 'link', '|','bulletedList', 'numberedList', 'blockQuote','insertTable', '|','undo', 'redo','|','mediaEmbed']},placeholder: 'For adding images please insert links or copy paste the image from internet.'})
     .then(editor => {
         console.log(editor);
-
         editor.plugins.get('FileRepository').createUploadAdapter = function(loader) {
             return {
                 upload: () => {

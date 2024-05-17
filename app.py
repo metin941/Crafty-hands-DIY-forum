@@ -8,7 +8,7 @@ import logging
 app = Flask(__name__)
 app.secret_key = 'Secret_key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///forum.db'
-app.config['UPLOAD_DIR'] = 'static\images'  # Set the upload directory path
+app.config['UPLOAD_DIR'] = 'static\images'  # Set the upload directory path for render.com to store images need premium plan with disk space (https://render.com/docs/disks) 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 db = SQLAlchemy(app)
 # Ensure the upload directory exists
