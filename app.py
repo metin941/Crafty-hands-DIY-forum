@@ -229,7 +229,7 @@ def upload_image():
         file_path = os.path.join(app.config['UPLOAD_DIR'], filename)
         app.logger.debug(f'Saving file to {file_path}')
         file.save(file_path)
-        uploaded_image_url = url_for('static', filename='images/' + filename)
+        uploaded_image_url = url_for('static', filename=f'images/{filename}')
         app.logger.debug(f'File saved, URL is {uploaded_image_url}')
         return jsonify({'url': uploaded_image_url}), 200
     else:

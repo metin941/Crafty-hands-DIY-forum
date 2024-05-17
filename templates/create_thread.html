@@ -157,6 +157,7 @@ ClassicEditor
                                 return response.json();
                             })
                             .then(data => {
+                                console.log('Uploaded image URL:', data.url);
                                 resolve({ default: data.url });
                             })
                             .catch(error => {
