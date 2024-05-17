@@ -4,7 +4,7 @@ from flask import session
 import os
 from werkzeug.utils import secure_filename
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 app.secret_key = 'Secret_key'
@@ -25,6 +25,7 @@ class User(db.Model):
     name = db.Column(db.String(80), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     country = db.Column(db.String(120), nullable=False)
+    last_activity = db.Column(db.DateTime, default=db.func.current_timestamp())
 
 class Thread(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -46,6 +47,7 @@ class Visitor(db.Model):
     page_visited = db.Column(db.String(200), nullable=False)
     timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())
 
+#ADMIN PAGE PART ---------------------------------------------
 @app.before_request
 def log_request_info():
     visitor_ip = request.remote_addr
@@ -58,10 +60,32 @@ def log_request_info():
     db.session.add(visitor)
     db.session.commit()
 
+    # Update the last_activity for the logged-in user
+    if 'user_id' in session:
+        user = User.query.get(session['user_id'])
+        if user:
+            user.last_activity = datetime.utcnow()
+            db.session.commit()
+
 @app.route('/visitors')
 def view_visitors():
     visitors = Visitor.query.all()
-    return render_template('visitors.html', visitors=visitors)
+    online_users = get_online_users()  # Get online users
+    return render_template('visitors.html', visitors=visitors, online_users=online_users)  # Pass online_users to the template
+
+def get_online_users():
+    now = datetime.utcnow()
+    five_minutes_ago = now - timedelta(minutes=5)
+    online_users = User.query.filter(User.last_activity >= five_minutes_ago).all()
+    return online_users
+
+@app.route('/online_users')
+def online_users():
+    ten_minutes_ago = datetime.utcnow() - timedelta(minutes=10)
+    online_users = User.query.filter(User.last_activity >= ten_minutes_ago).all()
+    return render_template('online_users.html', users=online_users)
+
+#------------------------------------------------------------------
 
 @app.route('/')
 def index():

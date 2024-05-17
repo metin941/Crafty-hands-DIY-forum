@@ -77,6 +77,15 @@
         {% endfor %}
     </table>
 
+    <!-- Content of online_users.html starts here -->
+    <h2>Online Users</h2>
+    <ul>
+        {% for user in online_users %}
+            <li>{{ user.username }} (Last Activity: {{ user.last_activity }})</li>
+        {% endfor %}
+    </ul>
+    <!-- Content of online_users.html ends here -->
+
     <script>
         function filterTable() {
             const ipFilter = document.getElementById('ip-filter').value.toLowerCase();
