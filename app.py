@@ -210,15 +210,12 @@ def upload_image():
     
     file = request.files['file']
 
-    # Check if the file is empty
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
 
-    # Check if the file has an allowed extension
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
         file.save(os.path.join(app.config['UPLOAD_DIR'], filename))
-        # Construct the URL for the uploaded image
         uploaded_image_url = url_for('static', filename='images/' + filename)
         return jsonify({'url': uploaded_image_url}), 200
     else:
