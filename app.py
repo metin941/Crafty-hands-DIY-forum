@@ -1,9 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash,jsonify,Response
 from flask_sqlalchemy import SQLAlchemy
 from flask import session
-from sqlalchemy.exc import IntegrityError
-from flask_mail import Mail, Message
-from bs4 import BeautifulSoup
 import os
 from werkzeug.utils import secure_filename
 
