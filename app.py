@@ -11,6 +11,10 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///forum.db'
 app.config['UPLOAD_DIR'] = 'static\images'  # Set the upload directory path
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 db = SQLAlchemy(app)
+# Ensure the upload directory exists
+if not os.path.exists(app.config['UPLOAD_DIR']):
+    os.makedirs(app.config['UPLOAD_DIR'])
+
 logging.basicConfig(level=logging.DEBUG)
 
 class User(db.Model):
@@ -203,7 +207,8 @@ def register():
     return render_template('register.html')
 
 def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/upload_image', methods=['POST'])
 def upload_image():
