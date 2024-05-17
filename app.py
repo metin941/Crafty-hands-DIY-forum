@@ -4,6 +4,7 @@ from flask import session
 import os
 from werkzeug.utils import secure_filename
 import logging
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = 'Secret_key'
@@ -37,6 +38,30 @@ class Response(db.Model):
     content = db.Column(db.Text, nullable=False)
     thread_id = db.Column(db.Integer, db.ForeignKey('thread.id'), nullable=False)
     thread = db.relationship('Thread', backref=db.backref('responses', lazy=True))
+
+class Visitor(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    ip_address = db.Column(db.String(120), nullable=False)
+    user_agent = db.Column(db.String(200), nullable=False)
+    page_visited = db.Column(db.String(200), nullable=False)
+    timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())
+
+@app.before_request
+def log_request_info():
+    visitor_ip = request.remote_addr
+    user_agent = request.headers.get('User-Agent')
+    page_visited = request.path
+    app.logger.info(f"Visitor IP: {visitor_ip}, User-Agent: {user_agent}, Page Visited: {page_visited}")
+
+    # Save visitor info to the database
+    visitor = Visitor(ip_address=visitor_ip, user_agent=user_agent, page_visited=page_visited)
+    db.session.add(visitor)
+    db.session.commit()
+
+@app.route('/visitors')
+def view_visitors():
+    visitors = Visitor.query.all()
+    return render_template('visitors.html', visitors=visitors)
 
 @app.route('/')
 def index():

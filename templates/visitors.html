@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visitors</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        #filter-bar {
+            margin-bottom: 20px;
+        }
+        #filter-bar input {
+            padding: 8px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+    <h1>Visitor Information</h1>
+
+    <div id="filter-bar">
+        <label for="ip-filter">IP Address:</label>
+        <input type="text" id="ip-filter" placeholder="Filter by IP address" onkeyup="filterTable()">
+        
+        <label for="page-filter">Page Visited:</label>
+        <input type="text" id="page-filter" placeholder="Filter by Page Visited" onkeyup="filterTable()">
+        
+        <label for="timestamp-filter">Timestamp:</label>
+        <input type="text" id="timestamp-filter" placeholder="Filter by Timestamp" onkeyup="filterTable()">
+    </div>
+
+    <table border="1" id="visitor-table">
+        <tr>
+            <th>ID</th>
+            <th>IP Address</th>
+            <th>User Agent</th>
+            <th>Page Visited</th>
+            <th>Timestamp</th>
+        </tr>
+        {% for visitor in visitors %}
+        <tr>
+            <td>{{ visitor.id }}</td>
+            <td>{{ visitor.ip_address }}</td>
+            <td>{{ visitor.user_agent }}</td>
+            <td>{{ visitor.page_visited }}</td>
+            <td>{{ visitor.timestamp }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <script>
+        function filterTable() {
+            const ipFilter = document.getElementById('ip-filter').value.toLowerCase();
+            const pageFilter = document.getElementById('page-filter').value.toLowerCase();
+            const timestampFilter = document.getElementById('timestamp-filter').value.toLowerCase();
+
+            const table = document.getElementById('visitor-table');
+            const tr = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < tr.length; i++) {
+                const tdIp = tr[i].getElementsByTagName('td')[1];
+                const tdPage = tr[i].getElementsByTagName('td')[3];
+                const tdTimestamp = tr[i].getElementsByTagName('td')[4];
+
+                if (tdIp && tdPage && tdTimestamp) {
+                    const ipValue = tdIp.textContent || tdIp.innerText;
+                    const pageValue = tdPage.textContent || tdPage.innerText;
+                    const timestampValue = tdTimestamp.textContent || tdTimestamp.innerText;
+
+                    if (ipValue.toLowerCase().indexOf(ipFilter) > -1 &&
+                        pageValue.toLowerCase().indexOf(pageFilter) > -1 &&
+                        timestampValue.toLowerCase().indexOf(timestampFilter) > -1) {
+                        tr[i].style.display = '';
+                    } else {
+                        tr[i].style.display = 'none';
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
