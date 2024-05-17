@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask import session
 import os
 from werkzeug.utils import secure_filename
+import logging
 
 app = Flask(__name__)
 app.secret_key = 'Secret_key'
@@ -10,6 +11,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///forum.db'
 app.config['UPLOAD_DIR'] = 'static\images'  # Set the upload directory path
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 db = SQLAlchemy(app)
+logging.basicConfig(level=logging.DEBUG)
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -205,20 +207,28 @@ def allowed_file(filename):
 
 @app.route('/upload_image', methods=['POST'])
 def upload_image():
+    app.logger.debug('Upload image request received')
+
     if 'file' not in request.files:
+        app.logger.error('No file part in request')
         return jsonify({'error': 'No file part'}), 400
     
     file = request.files['file']
 
     if file.filename == '':
+        app.logger.error('No selected file')
         return jsonify({'error': 'No selected file'}), 400
 
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        file.save(os.path.join(app.config['UPLOAD_DIR'], filename))
+        file_path = os.path.join(app.config['UPLOAD_DIR'], filename)
+        app.logger.debug(f'Saving file to {file_path}')
+        file.save(file_path)
         uploaded_image_url = url_for('static', filename='images/' + filename)
+        app.logger.debug(f'File saved, URL is {uploaded_image_url}')
         return jsonify({'url': uploaded_image_url}), 200
     else:
+        app.logger.error('Invalid file type')
         return jsonify({'error': 'Invalid file type'}), 400
 
 @app.route('/search_threads', methods=['GET','POST'])
