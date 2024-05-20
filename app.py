@@ -48,24 +48,24 @@ class Visitor(db.Model):
     timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())
 
 #ADMIN PAGE PART ---------------------------------------------
-@app.before_request
-def log_request_info():
-    visitor_ip = request.remote_addr
-    user_agent = request.headers.get('User-Agent')
-    page_visited = request.path
-    app.logger.info(f"Visitor IP: {visitor_ip}, User-Agent: {user_agent}, Page Visited: {page_visited}")
+#@app.before_request
+#def log_request_info():
+ #   visitor_ip = request.remote_addr
+  #  user_agent = request.headers.get('User-Agent')
+   # page_visited = request.path
+    #app.logger.info(f"Visitor IP: {visitor_ip}, User-Agent: {user_agent}, Page Visited: {page_visited}")
 
     # Save visitor info to the database
-    visitor = Visitor(ip_address=visitor_ip, user_agent=user_agent, page_visited=page_visited)
-    db.session.add(visitor)
-    db.session.commit()
+   # visitor = Visitor(ip_address=visitor_ip, user_agent=user_agent, page_visited=page_visited)
+    #db.session.add(visitor)
+    #db.session.commit()
 
     # Update the last_activity for the logged-in user
-    if 'user_id' in session:
-        user = User.query.get(session['user_id'])
-        if user:
-            user.last_activity = datetime.utcnow()
-            db.session.commit()
+    #if 'user_id' in session:
+     #   user = User.query.get(session['user_id'])
+      #  if user:
+       #     user.last_activity = datetime.utcnow()
+        #    db.session.commit()
 
 @app.route('/visitors')
 def view_visitors():
